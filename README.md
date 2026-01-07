@@ -36,13 +36,13 @@ The goal is to evaluate how simple heuristics perform compared to a simplified v
 
 ## 📂 Project Structure
 Simtools-Project/
-├── main.py # Blackjack simulation and game logic
-├── diagram.py # Strategy comparison diagrams
-├── histogram.py # Histogram visualizations
-├── plots/ # Generated diagrams and histograms
-│ ├── diagram_outcome_rates.png
-│ ├── diagram_average_profit.png
-├── README.md
+* main.py # Blackjack simulation and game logic
+* diagram.py # Strategy comparison diagrams
+* histogram.py # Histogram visualizations
+* plots/ # Generated diagrams and histograms
+  * diagram_outcome_rates.png
+  * diagram_average_profit.png
+* README.md
 
 
 ---
