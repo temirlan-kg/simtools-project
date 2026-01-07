@@ -57,10 +57,7 @@ pip install -r requirements.txt
 python main.py
 python diagram.py
 python histogram.py
-
----
-
-**📊 Results & Visualizations**
+```**📊 Results & Visualizations**
 
 ### Strategy Outcome Rates
 ![Outcome Rates](plots/diagram_outcome_rates.png)
