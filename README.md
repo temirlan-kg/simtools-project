@@ -61,7 +61,7 @@ python histogram.py
 ---
 
 
-# 📊 Results & Visualizations
+## 📊 Results & Visualizations
 Strategy Outcome Rates
 Average Profit per Game
 The diagrams show that:
@@ -71,14 +71,14 @@ The Basic Strategy significantly reduces losses
 
  ---
 
-# 📈 Monte Carlo Method
+## 📈 Monte Carlo Method
 Monte Carlo simulation is used to approximate expected outcomes by simulating a large number of independent games.
 This allows a statistical comparison of strategies without analytical probability calculations.
 
 ---
 
 
-# 📝 Conclusion
+## 📝 Conclusion
 The simulation demonstrates that:
 Simple heuristics already outperform random play
 A structured rule-based strategy (Basic Strategy) performs best
@@ -87,14 +87,14 @@ Monte Carlo simulations are well-suited for evaluating stochastic games like Bla
 ---
 
 
-# 👥 Authors
+## 👥 Authors
 Temirlan Anarkulov
 Christian Heusler
 
 ---
 
 
-# 📄 License
+## 📄 License
 This project is for educational purposes only.
 
 
