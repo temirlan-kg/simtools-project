@@ -61,10 +61,10 @@ python histogram.py
 ##📊 Results & Visualizations
 
 ### Strategy Outcome Rates
-![Outcome Rates](plots/diagram_outcome_rates.png)
+![Outcome Rates](/diagram_outcome_rates.png)
 
 ### Average Profit per Game
-![Average Profit](plots/diagram_average_profit.png)
+![Average Profit](/diagram_average_profit.png)
 
 The diagrams show that:
 - Random strategies perform worst
