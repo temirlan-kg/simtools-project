@@ -51,7 +51,7 @@ Simtools-Project/
 
 ## ▶️ How to Run
 
-### 1️⃣ Install requirements
+## 1️⃣ Install requirements
 ```bash
 pip install -r requirements.txt
 python main.py
