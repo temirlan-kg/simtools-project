@@ -57,7 +57,8 @@ pip install -r requirements.txt
 python main.py
 python diagram.py
 python histogram.py
-```**📊 Results & Visualizations**
+```
+##📊 Results & Visualizations
 
 ### Strategy Outcome Rates
 ![Outcome Rates](plots/diagram_outcome_rates.png)
@@ -72,13 +73,13 @@ The diagrams show that:
 
 ---
 
-**📈 Monte Carlo Method**
+##📈 Monte Carlo Method
 
 Monte Carlo simulation is used to approximate expected outcomes by simulating a large number of independent games.
 
 ---
 
-**📝 Conclusion**
+## 📝 Conclusion
 
 The simulation demonstrates that:
 - Simple heuristics already outperform random play
@@ -86,13 +87,13 @@ The simulation demonstrates that:
 
 ---
 
-**👥 Authors**
+## 👥 Authors
 
 - Temirlan Anarkulov  
 - Christian Heusler  
 
 ---
 
-**📄 License**
+## 📄 License
 
-This project is for **educational purposes only**.
+This project is for educational purposes only.
