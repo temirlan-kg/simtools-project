@@ -46,11 +46,14 @@ Simtools-Project/
 
 ---
 
+
+---
+
 ## ▶️ How to Run
 
-### Install requirements
+### 1️⃣ Install requirements
 ```bash
-pip install matplotlib
+pip install -r requirements.txt
 python main.py
 python diagram.py
 python histogram.py
