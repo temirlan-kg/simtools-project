@@ -16,6 +16,10 @@ from main import (
 )
 
 
+# ----------------------------
+# Plotting helpers
+# ----------------------------
+
 def plot_outcome_rates(
     policies: List[Policy],
     win_rates: List[float],
@@ -24,7 +28,14 @@ def plot_outcome_rates(
     filename: str
 ) -> None:
     """
-    Grouped bar chart: win / loss / push rates per strategy
+    Create a grouped bar chart showing win/loss/push rates per strategy.
+
+    Args:
+        policies: List of strategies (used for x-axis labels).
+        win_rates: Win rates per strategy (0..1).
+        loss_rates: Loss rates per strategy (0..1).
+        push_rates: Push rates per strategy (0..1).
+        filename: Output image filename (e.g., 'diagram_outcome_rates.png').
     """
     x = list(range(len(policies)))
     width = 0.25
@@ -55,7 +66,12 @@ def plot_average_profit(
     filename: str
 ) -> None:
     """
-    Bar chart: average profit per game per strategy
+    Create a bar chart showing average profit per game for each strategy.
+
+    Args:
+        policies: List of strategies (used for x-axis labels).
+        avg_profits: Average profit per game per strategy.
+        filename: Output image filename (e.g., 'diagram_average_profit.png').
     """
     plt.figure()
 
@@ -72,7 +88,18 @@ def plot_average_profit(
     plt.close()
 
 
+# ----------------------------
+# Main
+# ----------------------------
+
 def main() -> None:
+    """
+    Run the Monte Carlo simulation for multiple strategies and export diagrams.
+
+    Outputs:
+        - diagram_outcome_rates.png
+        - diagram_average_profit.png
+    """
     n_games = 50_000
     rules = Rules(
         dealer_hits_soft_17=False,
@@ -87,12 +114,13 @@ def main() -> None:
         BasicStrategyPolicy(),
     ]
 
-    win_rates = []
-    loss_rates = []
-    push_rates = []
-    avg_profits = []
+    win_rates: List[float] = []
+    loss_rates: List[float] = []
+    push_rates: List[float] = []
+    avg_profits: List[float] = []
 
     for i, policy in enumerate(policies):
+        # Different seeds make runs reproducible but avoid identical randomness per strategy.
         summary = simulate(
             policy,
             n_games=n_games,
@@ -126,4 +154,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

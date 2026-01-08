@@ -58,7 +58,7 @@ python main.py
 python diagram.py
 python histogram.py
 ```
-##📊 Results & Visualizations
+## 📊 Results & Visualizations
 
 ### Strategy Outcome Rates
 ![Outcome Rates](/diagram_outcome_rates.png)
@@ -73,7 +73,7 @@ The diagrams show that:
 
 ---
 
-##📈 Monte Carlo Method
+## 📈 Monte Carlo Method
 
 Monte Carlo simulation is used to approximate expected outcomes by simulating a large number of independent games.
 

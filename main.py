@@ -10,16 +10,19 @@ from typing import List, Tuple, Protocol
 
 RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
+
 def card_value(rank: str) -> int:
-    """Base card value (Ace is handled separately)."""
+    """Return the base Blackjack value of a rank (Ace counts as 1 here)."""
     if rank in ("J", "Q", "K"):
         return 10
     if rank == "A":
         return 1
     return int(rank)
 
+
 @dataclass
 class Hand:
+    """A Blackjack hand with helpers for total value, blackjack and bust checks."""
     cards: List[str]
 
     def add(self, rank: str) -> None:
@@ -27,9 +30,11 @@ class Hand:
 
     def value_and_usable_ace(self) -> Tuple[int, bool]:
         """
-        Hand value according to Blackjack rules:
-        - Ace counts as 1 or 11, whichever is better (<=21).
-        usable_ace=True means one Ace is counted as 11.
+        Compute the best hand total under Blackjack Ace rules.
+
+        Returns:
+            total: best value <= 21 if possible
+            usable_ace: True if an Ace is counted as 11 (soft hand)
         """
         total = 0
         aces = 0
@@ -38,7 +43,7 @@ class Hand:
                 aces += 1
             total += card_value(c)
 
-        # Try to count one Ace as 11 (i.e. +10 extra) if <= 21
+        # Upgrade one Ace from 1 to 11 (+10) if it does not bust the hand.
         usable_ace = False
         if aces > 0 and total + 10 <= 21:
             total += 10
@@ -55,7 +60,7 @@ class Hand:
         return self.value_and_usable_ace()[1]
 
     def is_blackjack(self) -> bool:
-        """Blackjack = 2 cards and total = 21."""
+        """Natural blackjack: exactly two cards totaling 21."""
         return len(self.cards) == 2 and self.total == 21
 
     def is_bust(self) -> bool:
@@ -68,8 +73,9 @@ class Hand:
 
 class InfiniteDeck:
     """
-    Infinite deck: cards are drawn with replacement from a standard rank set.
-    This is common in simulations and avoids the 'deck empty' problem.
+    Infinite deck model: draws ranks with replacement.
+
+    This simplifies Monte Carlo simulations by avoiding deck depletion and reshuffles.
     """
     def __init__(self, rng: random.Random | None = None):
         self.rng = rng or random.Random()
@@ -83,14 +89,17 @@ class InfiniteDeck:
 # ----------------------------
 
 class Policy(Protocol):
+    """Strategy interface: implement decide() to return 'hit' or 'stand'."""
     name: str
+
     def decide(self, player_hand: Hand, dealer_upcard: str) -> str:
-        """Return 'hit' or 'stand'."""
         ...
 
 
 class RandomPolicy:
+    """Baseline strategy: randomly chooses between hit and stand."""
     name = "RandomPolicy"
+
     def __init__(self, rng: random.Random | None = None):
         self.rng = rng or random.Random()
 
@@ -99,9 +108,7 @@ class RandomPolicy:
 
 
 class ThresholdPolicy:
-    """
-    Simple heuristic: hit while total < threshold, otherwise stand.
-    """
+    """Hit while total < threshold, otherwise stand."""
     def __init__(self, threshold: int = 17):
         self.threshold = threshold
         self.name = f"ThresholdPolicy(threshold={threshold})"
@@ -112,32 +119,25 @@ class ThresholdPolicy:
 
 class BasicStrategyPolicy:
     """
-    Simplified Blackjack basic strategy (no splits, no double down).
+    Simplified basic strategy (no splits, no doubling).
 
-    Well suited for a university project because:
-    - clear rule set
-    - significantly better than Random or Threshold strategies
+    Included to compare a stronger, deterministic policy against naive baselines.
     """
-
     name = "BasicStrategyPolicy(no-split-no-double)"
 
     def decide(self, player_hand: Hand, dealer_upcard: str) -> str:
         player_total = player_hand.total
         dealer_val = 11 if dealer_upcard == "A" else card_value(dealer_upcard)
 
-        # Safety check
         if player_total >= 21:
             return "stand"
 
         # Soft hands (usable Ace)
         if player_hand.usable_ace:
-            # Soft 19+ => stand
             if player_total >= 19:
                 return "stand"
-            # Soft 18: hit vs 9/10/A, otherwise stand
             if player_total == 18:
                 return "hit" if dealer_val in (9, 10, 11) else "stand"
-            # Soft <=17 => hit
             return "hit"
 
         # Hard hands
@@ -156,13 +156,15 @@ class BasicStrategyPolicy:
 
 @dataclass
 class Rules:
-    dealer_hits_soft_17: bool = False   # False = dealer stands on soft 17 (S17)
+    """Rule parameters used by the simulation (S17/H17, payout, bet)."""
+    dealer_hits_soft_17: bool = False   # False => S17, True => H17
     blackjack_payout: float = 1.5
     bet: float = 1.0
 
 
 @dataclass
 class GameResult:
+    """Structured result of a single round (useful for stats and debugging)."""
     outcome: str       # "win", "loss", "push"
     profit: float
     player_total: int
@@ -174,11 +176,13 @@ class GameResult:
 
 
 class BlackjackGame:
+    """One-round Blackjack engine: deal, player policy turn, dealer rules, settle outcome."""
     def __init__(self, rules: Rules, deck: InfiniteDeck):
         self.rules = rules
         self.deck = deck
 
     def _dealer_should_hit(self, dealer_hand: Hand) -> bool:
+        # Dealer draws to 17; soft-17 behavior depends on rules.
         total, usable_ace = dealer_hand.value_and_usable_ace()
         if total < 17:
             return True
@@ -189,6 +193,7 @@ class BlackjackGame:
         return False
 
     def play_round(self, policy: Policy) -> GameResult:
+        """Play a single round and return the outcome, profit and round flags."""
         player = Hand([self.deck.draw(), self.deck.draw()])
         dealer = Hand([self.deck.draw(), self.deck.draw()])
         dealer_upcard = dealer.cards[0]
@@ -196,6 +201,7 @@ class BlackjackGame:
         player_bj = player.is_blackjack()
         dealer_bj = dealer.is_blackjack()
 
+        # Immediate blackjack resolution
         if player_bj or dealer_bj:
             if player_bj and dealer_bj:
                 return GameResult("push", 0.0, player.total, dealer.total, True, True, False, False)
@@ -205,6 +211,7 @@ class BlackjackGame:
             return GameResult("loss", -1.0 * self.rules.bet,
                               player.total, dealer.total, False, True, False, False)
 
+        # Player turn
         while True:
             if player.is_bust():
                 return GameResult("loss", -1.0 * self.rules.bet,
@@ -215,9 +222,11 @@ class BlackjackGame:
                 break
             player.add(self.deck.draw())
 
+        # Dealer turn
         while self._dealer_should_hit(dealer):
             dealer.add(self.deck.draw())
 
+        # Final resolution
         if player.is_bust():
             return GameResult("loss", -1.0 * self.rules.bet,
                               player.total, dealer.total, False, False, True, dealer.is_bust())
@@ -241,6 +250,7 @@ class BlackjackGame:
 
 @dataclass
 class Summary:
+    """Aggregated metrics for many simulated rounds (counts, rates, and profit)."""
     games: int
     wins: int
     losses: int
@@ -253,6 +263,7 @@ class Summary:
 
 
 def simulate(policy: Policy, n_games: int, seed: int = 42, rules: Rules | None = None) -> Summary:
+    """Run n_games Monte Carlo rounds for a policy and return aggregated statistics."""
     rules = rules or Rules()
     rng = random.Random(seed)
     deck = InfiniteDeck(rng=rng)
@@ -285,6 +296,7 @@ def simulate(policy: Policy, n_games: int, seed: int = 42, rules: Rules | None =
 
 
 def print_summary(policy_name: str, s: Summary) -> None:
+    """Print a readable summary for one policy run."""
     print(f"\n=== {policy_name} ===")
     print(f"Games: {s.games}")
     print(f"Wins/Losses/Pushes: {s.wins}/{s.losses}/{s.pushes}")
@@ -298,6 +310,7 @@ def print_summary(policy_name: str, s: Summary) -> None:
 # ----------------------------
 
 def main() -> None:
+    """Run the simulation for multiple strategies and print comparable results."""
     n = 50_000
     rules = Rules(dealer_hits_soft_17=False, blackjack_payout=1.5, bet=1.0)
 
@@ -320,5 +333,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
